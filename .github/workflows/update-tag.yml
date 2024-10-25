@@ -1,0 +1,28 @@
+name: Update Tag
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  update-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update tag
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -fa ${TAG_VER} -m "Update ${TAG_VER} tag to ${GITHUB_SHA}"
+          git push --force origin ${TAG_VER}
+        env:
+          TAG_VER: "v1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
