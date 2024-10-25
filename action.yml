@@ -1,0 +1,20 @@
+name: 'Gemini Generate issue'
+description: 'Use Gemini to create the body of your issue.'
+
+inputs:
+  gemini-token:
+    description: 'Gemini API key'
+    required: true
+  issue-number:
+    description: 'Issue number'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate issue
+      shell: bash
+      run: |
+        bash ${{ github.action_path }}/generate_issue.sh \
+          ${{ inputs.gemini-token }} \
+          ${{ inputs.issue-number }}
