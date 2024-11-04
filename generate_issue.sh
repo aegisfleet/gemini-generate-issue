@@ -2,7 +2,7 @@
 
 request_gemini() {
   local -r gemini_token="${1:?Gemini API token is required}"
-  local -r chiled_issue_title="${2:?Child issue title is required}"
+  local -r child_issue_title="${2:?Child issue title is required}"
   local -r parent_issue_number="${3:?Parent issue number is required}"
   local -r parent_issue_title="${4:?Parent issue title is required}"
   local -r parent_issue_body="${5:?Parent issue body is required}"
@@ -15,11 +15,12 @@ GitHubの親Issueから子Issueを作成したい。
 - 回答は子Issueの本文だけにする。
 - 子Issueのフォーマットは親Issueと同じ形にする。
 - 子Issueは作業を行う前の状態を想定して作成する。
+- 各項目の初期値は「- なし」とする。
 - 親Issueのタイトルと親Issueの本文を基に子Issueで行うタスクを推測する。
-- 子Issueの本文に「- 親Issue: #${parent_issue_number}」を記載する。
+- 子Issueの本文に「参照」の項目を追加して「- 親Issue: #${parent_issue_number}」を記載する。
 
 子Issueのタイトル:
-${chiled_issue_title}
+${child_issue_title}
 
 親Issueのタイトル:
 ${parent_issue_title}
@@ -58,6 +59,11 @@ EOS
   fi
 
   echo "${response_text}"
+}
+
+clean_text() {
+  local text="${1:?Text is required}"
+  echo "${text}" | sed '1{/^```$/d};${/^```$/d}'
 }
 
 get_issue() {
@@ -126,9 +132,11 @@ main() {
     "${parent_issue_body}" \
   )
 
+  local -r cleaned_text=$(clean_text "${response_text}")
+
   update_issue "${child_issue_number}" \
     "${child_issue_title}" \
-    "${response_text}"
+    "${cleaned_text}"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
